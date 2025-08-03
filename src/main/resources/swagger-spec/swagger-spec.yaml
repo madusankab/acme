@@ -1,0 +1,185 @@
+openapi: 3.0.1
+info:
+  title: Flight Booking API
+  version: 1.0.0
+  description: API for searching flights and booking seats.
+paths:
+  /v1.0/booking:
+    post:
+      summary: Book a flight seat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlightBookingRequest'
+      responses:
+        '201':
+          description: Flight booked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightBookingResponse'
+        '409':
+          description: No available seats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightBookingResponse'
+  /v1.0/flight/{id}:
+    get:
+      summary: Find a flight by ID
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Flight found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightDTO'
+  /v1.0/flight/search:
+    get:
+      summary: Search for flights
+      parameters:
+      - name: origin
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: destination
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: departureDate
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: numOfSeats
+        in: query
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Available flight instances
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightSearchResponse'
+components:
+  schemas:
+    FlightBookingRequest:
+      type: object
+      properties:
+        flightInstanceId:
+          type: integer
+        seatType:
+          $ref: '#/components/schemas/SeatType'
+      required:
+      - flightInstanceId
+      - seatType
+    FlightBookingResponse:
+      type: object
+      properties:
+        seat:
+          $ref: '#/components/schemas/SeatDTO'
+        status:
+          $ref: '#/components/schemas/FlightBookingStatus'
+    SeatDTO:
+      type: object
+      properties:
+        seatNumber:
+          type: string
+        seatType:
+          $ref: '#/components/schemas/SeatType'
+        isBooked:
+          type: boolean
+    FlightDTO:
+      type: object
+      properties:
+        flightId:
+          type: string
+        origin:
+          type: string
+        destination:
+          type: string
+        departureTime:
+          type: string
+          format: time
+        arrivalTime:
+          type: string
+          format: time
+        flightInstances:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlightInstanceDTO'
+    FlightInstanceDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+        departureDate:
+          type: string
+          format: date
+        departureTime:
+          type: string
+          format: time
+        arrivalTime:
+          type: string
+          format: time
+        status:
+          $ref: '#/components/schemas/FlightInstanceStatus'
+        seats:
+          type: array
+          items:
+            $ref: '#/components/schemas/SeatDTO'
+    FlightSearchRequest:
+      type: object
+      properties:
+        origin:
+          type: string
+        destination:
+          type: string
+        departureDate:
+          type: string
+          format: date
+        numOfSeats:
+          type: integer
+          minimum: 1
+      required:
+      - origin
+      - destination
+      - departureDate
+      - numOfSeats
+    FlightSearchResponse:
+      type: object
+      properties:
+        flightInstances:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlightInstanceDTO'
+    SeatType:
+      type: string
+      enum:
+      - ECONOMY_CLASS
+      - BUSINESS_CLASS
+    FlightBookingStatus:
+      type: string
+      enum:
+      - SUCCESS
+      - NO_AVAILABLE_SEATS
+    FlightInstanceStatus:
+      type: string
+      enum:
+      - SCHEDULED
+      - COMPLETED
+      - CANCELLED
+      - DELAYED

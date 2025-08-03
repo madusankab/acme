@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: education-jdk-21
+
+  datasource:
+    url: jdbc:h2:mem:Airline_DB
+    driverClassName: org.h2.Driver
+    username: sa
+    password: sa
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+management:
+  metrics:
+    web:
+      server:
+        request:
+          autotime:
+            enabled: true
+            percentiles-histogram: true
+            percentiles: 0.5,0.95
+  endpoints:
+    web:
+      exposure:
+        include: metrics,prometheus,health,refresh
+
